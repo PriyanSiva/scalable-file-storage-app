@@ -1,20 +1,44 @@
-import React from "react";
-import { withAuthenticator } from "@aws-amplify/ui-react";
-import "@aws-amplify/ui-react/styles.css";
+// App.js
 
-function App({ signOut, user }) {
+import { useAuth } from "react-oidc-context";
+
+function App() {
+  const auth = useAuth();
+
+  const signOutRedirect = () => {
+    const clientId = "36fk9vns52pbma5n0brs54c2vc";
+    const logoutUri = "http://localhost:3000/";
+    const cognitoDomain = "https://us-east-23stzqaet8.auth.us-east-2.amazoncognito.com";
+    window.location.href = `${cognitoDomain}/logout?client_id=${clientId}&logout_uri=${encodeURIComponent(logoutUri)}`;
+  };
+
+  if (auth.isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (auth.error) {
+    return <div>Encountering error... {auth.error.message}</div>;
+  }
+
+  if (auth.isAuthenticated) {
+    return (
+      <div>
+        <pre> Hello: {auth.user?.profile.email} </pre>
+        <pre> ID Token: {auth.user?.id_token} </pre>
+        <pre> Access Token: {auth.user?.access_token} </pre>
+        <pre> Refresh Token: {auth.user?.refresh_token} </pre>
+
+        <button onClick={() => auth.removeUser()}>Sign out</button>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ padding: "2rem", fontFamily: "sans-serif" }}>
-      <h1>Scalable File Storage App</h1>
-      <p>Welcome, <strong>{user?.attributes?.email || user?.username}</strong></p>
-
-      <hr />
-
-      <p>Authenticated area – we’ll add file upload here later.</p>
-
-      <button onClick={signOut}>Sign out</button>
+    <div>
+      <button onClick={() => auth.signinRedirect()}>Sign in</button>
+      <button onClick={() => signOutRedirect()}>Sign out</button>
     </div>
   );
 }
 
-export default withAuthenticator(App);
+export default App;
