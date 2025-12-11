@@ -25,7 +25,7 @@ export async function uploadFile(idToken, file) {
   // Managed upload (handles multipart if needed)
   await s3
     .upload({
-      Bucket: awsConfig.bucketName,
+      Bucket: awsConfig.s3Bucket,
       Key: key,
       Body: file,
       ContentType: file.type || "application/octet-stream",
